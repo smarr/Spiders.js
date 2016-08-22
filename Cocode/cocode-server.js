@@ -8,10 +8,10 @@ var server = {
 	},
 
 	register: function(name,ref){
-		console.log("New client registered: " + name)
+		console.log("New client registered: " + name )
 		for(var i in this.clients){
-			this.clients[i].newCoder(name)
-			ref.newCoder(i)
+			this.clients[i].newCoder(name,ref)
+			ref.newCoder(i,this.clients[i])
 		}
 
 		this.clients[name] = ref

@@ -30,15 +30,21 @@
         $('#chatLabel').show();
         $('#publicChat').show();
         $("#highlightCodeButton").show();
+        $("#privateChatLabel").show();
+        $("#allPrivateChat").show();
         document.getElementById("code").style["height"] = "auto";
         document.getElementById("code").style["min-height"] = "150px";
         require(['../cocode-client'])
       } 
     }
     var actRef = null
+    var privateChoice = null
     function setActRef(ref){
-      console.log("Act ref set!!!")
       actRef = ref
+    }
+
+    function setPrivateChoice(name){
+      privateChoice = name
     }
   </script>
   <body>
@@ -55,30 +61,34 @@
         <div id="navbar" class="navbar-collapse collapse">
         </div>
       </div>
-      <div class="collapse navbar-collapse" id="drop">
-            <ul class="nav navbar-nav">
-              <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">CoCoders 
-                <span class="caret"></span></a>
-                <ul class="dropdown-menu" id="coders-menu">
-                </ul>
-              </li>
-            </ul>
-            
-          </div><!-- /.navbar-collapse -->
     </nav>
 
     <pre>
       <code class="hljs JavaScript" contenteditable="true" id="code"></code>
     </pre>
     <button id="highlightCodeButton" class="btn btn-default" type="button" >Highlight!</button>
+    <span class="label label-primary" id="privateChatLabel">Private Chat</span>
+    <div class="input-group" id="allPrivateChat">
+      <div class="input-group-btn">
+        <!-- Buttons -->
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Receiver <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" id="coders-menu">
+          </ul>
+      </div>
+      <input type="text" class="form-control" aria-label="..." id="privateMessageText">
+      <div class="input-group-btn">
+          <button id="privateSendButton" type="button" class="btn btn-default">Send</button>
+      </div>
+    </div>
+    <span class="label label-primary" id="chatLabel">Public Chat</span>
     <div class="input-group" id="publicMessage">
           <span class="input-group-btn">
             <button class="btn btn-default" type="button" id="publicSendButton">Send</button>
           </span>
           <input type="text" class="form-control" id="publicMessageText">
     </div><!-- /input-group -->
-    <span class="label label-primary" id="chatLabel">Public Chat</span>
      <textarea rows="4" cols="50" id="publicChat">
     </textarea> 
     <div class="input-group">
@@ -93,6 +103,8 @@
       $('#chatLabel').hide();
       $('#publicChat').hide();
       $("#highlightCodeButton").hide();
+      $("#privateChatLabel").hide();
+      $("#allPrivateChat").hide();
     </script>
     <script>
         $(document).ready(function () {

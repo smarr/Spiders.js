@@ -2,19 +2,9 @@ require(['VAT'],function(vatModule){
 	var systemBehaviour = {
 		serverRef: null,
 		name: 	null,
+		coders: {},
 
 		updateCode: function(rawHTML){
-			/*var rxp = /&lt;(.+)&gt;(.+)&lt;\/(.+)&gt;/ig
-			if(rxp.test(rawHTML)){
-				console.log("New code: " + rawHTML)
-				console.log("Replaced: " + rawHTML.replace(rxp,"<$1>$2</$3>"))
-				console.log("Original: " + rawHTML.replace(rxp,"$2"))
-				var parsed = rawHTML.replace(rxp,"<$1>$2</$3>")
-				jQuery('#code').html(parsed);
-			}
-			else{
-				jQuery('#code').html(rawHTML)
-			}*/
 			jQuery('#code').html(rawHTML)
 		},
 
@@ -28,33 +18,33 @@ require(['VAT'],function(vatModule){
 				that.sendPublicMessage(jQuery('#publicMessageText').val())
 				jQuery('#publicMessageText').val("")
 			})
+			jQuery('#privateSendButton').click(function(){
+				var to = window.privateChoice
+				var text = jQuery('#privateMessageText').val()
+				jQuery('#privateMessageText').val("")
+				that.sendPrivateMessage(to,text)
+			})
 			jQuery('#highlightCodeButton').click(function(){
 				var code = jQuery('#code').text()
-				//window.hljs.configure({useBR: true});
 				var high = window.hljs.highlightAuto(code).value
-				console.log("Highlighted: " + high)
 				that.updateCode(high)
 			})
 			this.onResolve(fut,function(ref){
 				this.serverRef = ref
 				ref.register(name,this)
 			})
-			this.onRuin(fut,function(err){
-				//TODO
-			})
 			window.setActRef(this)
 		},
 
-		newCoder: function(name){
-			jQuery("#coders-menu").append("<li>" + name + "</li>")
+		newCoder: function(name,ref){
+			var element = "<li onclick=\"setPrivateChoice(\'" + name + "\')\">" + name + "</li>"
+			jQuery("#coders-menu").append(element)
+			this.coders[name] = ref
 		},
 
 		newCode: function(code){
 			var rxp = /&lt;(.+)&gt;(.+)&lt;\/(.+)&gt;/ig
 			if(rxp.test(code)){
-				console.log("New code: " + code)
-				console.log("Replaced: " + code.replace(rxp,"<$1>$2</$3>"))
-				console.log("Original: " + code.replace(rxp,"$2"))
 				var parsed = code.replace(rxp,"<$1>$2</$3>")
 				jQuery('#code').html(parsed);
 			}
@@ -67,27 +57,27 @@ require(['VAT'],function(vatModule){
 		},
 
 		newPrivateMessage: function(message){
-			//TODO
+			window.alert("Coder: " + message.from + " sent: " + message.message)
 		},
 
 		sendPublicMessage: function(text){
-			console.log("Sending public message: " + text)
 			this.serverRef.publicMessage(this.isolate({from: this.name,message: text}))
 		},
 
 		sendPrivateMessage: function(to,text){
-			//TODO
+			var ref = this.coders[to]
+			ref.newPrivateMessage(this.isolate({from: this.name,message: text}))
 		}
 	}
 
 	var highlighter = {
+		imports: ['./highlight/highlight.pack.js'],
 		init: function(){
 			console.log("New highlighter created")
 		}
-
 	}
 	vatModule(function(actor,systemActor,onResolve,onRuin,killAll){
 		systemActor(systemBehaviour)
-		actor(highlighter)
+		actor(highlighter,"highlighter")
 	})
 })
