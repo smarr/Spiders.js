@@ -1,7 +1,8 @@
 require(['VAT'],function(vatModule){
 	var systemBehaviour = {
-		serverRef: null,
-		name: 	null,
+		serverRef: 0,
+		highlightRef: 0,
+		name: 	0,
 		coders: {},
 
 		updateCode: function(rawHTML){
@@ -10,7 +11,7 @@ require(['VAT'],function(vatModule){
 
 		init: function(){
 			console.log("Client system actor loaded")
-			var fut = this.getRemoteRef('localhost',8080)
+			var sFut = this.getRemoteRef('localhost',8080)
 			var name = jQuery('#name').val()
 			this.name = name
 			var that = this
@@ -26,14 +27,21 @@ require(['VAT'],function(vatModule){
 			})
 			jQuery('#highlightCodeButton').click(function(){
 				var code = jQuery('#code').text()
-				var high = window.hljs.highlightAuto(code).value
-				that.updateCode(high)
+				that.serverRef.newCode(that.name,code)
+				var fut = that.highlightRef.highlightCode(code)
+				that.onResolve(fut,function(highlightedCode){
+					that.updateCode(highlightedCode)
+				})
 			})
-			this.onResolve(fut,function(ref){
+			this.onResolve(sFut,function(ref){
 				this.serverRef = ref
 				ref.register(name,this)
 			})
 			window.setActRef(this)
+		},
+
+		setupHighlight: function(ref){
+			this.highlightRef = ref
 		},
 
 		newCoder: function(name,ref){
@@ -43,11 +51,12 @@ require(['VAT'],function(vatModule){
 		},
 
 		newCode: function(code){
-			var rxp = /&lt;(.+)&gt;(.+)&lt;\/(.+)&gt;/ig
-			if(rxp.test(code)){
-				var parsed = code.replace(rxp,"<$1>$2</$3>")
-				jQuery('#code').html(parsed);
-			}
+			console.log("Got new code: " + code)
+			var fut = this.highlightRef.highlightCode(code)
+			this.onResolve(fut,function(highlightedCode){
+				console.log("Updating code")
+				this.updateCode(highlightedCode)
+			})
 		},
 
 		newPublicMessage: function(message){
@@ -73,11 +82,16 @@ require(['VAT'],function(vatModule){
 	var highlighter = {
 		imports: ['./highlight/highlight.pack.js'],
 		init: function(){
-			console.log("New highlighter created")
+			this.system.setupHighlight(this)
+		},
+
+		highlightCode: function(code){
+			var highlighted = this.highlightAuto(code).value
+			return highlighted
 		}
 	}
 	vatModule(function(actor,systemActor,onResolve,onRuin,killAll){
 		systemActor(systemBehaviour)
-		actor(highlighter,"highlighter")
+		actor(highlighter)
 	})
 })

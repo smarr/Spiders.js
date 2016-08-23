@@ -452,6 +452,7 @@ define(function() {
     	setPeerRemoteAccessRoutePort: 	setPeerRemoteAccessRoutePort,
     	peerRemoteAccessRouteAdd: 		peerRemoteAccessRouteAdd,
     	peerRemoteAccessRoutePort: 		peerRemoteAccessRoutePort,
+    	isPeerRemoteAccessMsg: 			isPeerRemoteAccessMsg,
 
     	makePeerRemoteCallMsg: 			makePeerRemoteCallMsg,
     	peerRemoteCallName: 			peerRemoteCallName,

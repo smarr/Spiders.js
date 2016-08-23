@@ -16,7 +16,14 @@ define(['./messages'], function(msgModule) {
 	var serialise = function(object){
 		return JSON.stringify(object, function(key, val) {
 		  	if (toType(val) === 'function') {
-		    	return functionPrefix + val.toString();
+		  		var body = null
+		  		try{
+		  			 body = val.toString()
+		  		}
+		  		catch(err){
+		  			body = "{}"
+		  		}
+		    	return functionPrefix + body;
 		  	}
 		  	else if(toType(val) === 'error'){
 		  		var errorMessage = val.message
@@ -152,6 +159,9 @@ define(['./messages'], function(msgModule) {
 			    	}
 			    	else if (property == "_castToRef_"){
 			    		return farRef
+			    	}
+			    	else if (property == "toJSON"){
+			    		return "far ref"
 			    	}
 			    	else{
 			        	throw new ReferenceError("Far reference doesn't understand: " + property)
